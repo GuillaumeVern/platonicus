@@ -1,4 +1,20 @@
 .mainPageCtn {
     display: flex;
-    background-color: grey;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+app-header {
+    background-color: black;
+    color: white;
+}
+
+app-body {
+    background-color: whitesmoke;
+    flex-grow: 50;
+}
+
+app-footer {
+    background-color: gray;
+    margin-top: auto;
 }
