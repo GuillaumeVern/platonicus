@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader'
-
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 
 @Component({
   selector: 'app-game-scene',
@@ -15,12 +14,14 @@ export class GameSceneComponent implements OnInit {
   material = new THREE.MeshNormalMaterial();
   renderer!: THREE.WebGLRenderer;
   clock = new THREE.Clock();
-  hedron: any;
-  elapsedTime = 0;
+  hedrons: any[] = [];
+  charHedron: any;
+  speedVector: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+  elapsedTime: number = 0;
 
   canvasSizes = {
     width: window.innerWidth,
-    height: window.innerHeight,
+    height: window.innerHeight * 0.9,
   };
 
   camera = new THREE.PerspectiveCamera(
@@ -38,12 +39,17 @@ export class GameSceneComponent implements OnInit {
     this.animate();
   }
 
+  /**
+   * Create the base scene using the canvas, adding actors and camera
+   */
   createThreeJsScene(): void {
-    const canvas = document.getElementById('canvas');
-    
+    const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+
+    window.addEventListener('keydown', (event) => {
+      this.actKeydown(event);
+    });
     this.addActors();
     this.addCamera();
-
 
     if (!canvas) {
       console.log('On est face à un pb');
@@ -55,6 +61,7 @@ export class GameSceneComponent implements OnInit {
     });
   }
 
+  /** Add actors to the scene, meaning light and models */
   addActors(): void {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 
@@ -62,63 +69,77 @@ export class GameSceneComponent implements OnInit {
     dirLight.position.set(-1, 2, 4);
     dirLight.castShadow = true;
 
-    this.hedron = new THREE.Mesh(
+    this.charHedron = new THREE.Mesh(
       new THREE.IcosahedronGeometry(10, 0),
       this.material
     );
-    this.hedron.castShadow = true;
-    this.hedron.receiveShadow = true;
 
-    this.scene.add(dirLight, this.hedron);
-    this.loadWorld()
+    this.loadWorld();
+    this.hedrons.forEach((hedron) => {
+      hedron.castShadow = true;
+      hedron.receiveShadow = true;
+      this.scene.add(hedron);
+    });
+    this.scene.add(ambientLight, dirLight, this.charHedron);
   }
 
+  /** Add Camera to the scene */
   addCamera(): void {
     this.camera.position.x = 0;
     this.camera.position.y = 30;
     this.camera.position.z = 30;
     this.camera.castShadow = true;
     this.camera.receiveShadow = true;
-    this.camera.lookAt(this.hedron.position);
+    this.camera.lookAt(this.charHedron.position);
 
     this.scene.add(this.camera);
   }
 
+  /** Renderer init settings */
   setRenderer(): void {
     this.renderer.setClearColor(0xe232222, 1);
     this.renderer.setSize(this.canvasSizes.width, this.canvasSizes.height);
   }
 
+  /** Use clock to animate movements in scene each frame */
   animate(): void {
     this.elapsedTime = this.clock.getElapsedTime();
-
-    this.hedron.rotation.x = -this.elapsedTime;
-    this.hedron.rotation.y = -this.elapsedTime;
-    this.hedron.rotation.z = -this.elapsedTime;
+    this.hedrons.forEach((hedron) => {
+      hedron.rotation.x = -this.elapsedTime;
+      hedron.rotation.y = -this.elapsedTime;
+      hedron.rotation.z = -this.elapsedTime;
+    });
+    this.charHedron.rotation.x = -this.elapsedTime * this.speedVector.x;
+    this.charHedron.rotation.y = this.elapsedTime * this.speedVector.y;
+    this.charHedron.rotation.z = this.elapsedTime * this.speedVector.z;
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(() => this.animate());
   }
 
-  makeInstance(
-    material: THREE.Material,
-    geometry: any,
-    color: any,
-    pos: THREE.Vector3
-  ) {
-    material = new THREE.MeshPhongMaterial({ color });
+  /** Bind key events to actions */
+  actKeydown(event: { key: string }) {
+    if (event.key == 'w') {
+      this.speedVector.x += 1;
+    }
+  }
 
+  /**
+   * Return a Three js instance created from parameters and adds it to scene
+   * @param pos Position, in Vector3 form
+   * @returns instance
+   */
+  makeInstance(material: THREE.Material, geometry: any, pos: THREE.Vector3) {
     const instance = new THREE.Mesh(geometry, material);
-    this.scene.add(instance);
-
     instance.position.set(pos.x, pos.y, pos.z);
-
+    this.scene.add(instance);
     return instance;
   }
 
+  /** Resizes canvas based on window size */
   resizeListener(): void {
     window.addEventListener('resize', () => {
       this.canvasSizes.width = window.innerWidth;
-      this.canvasSizes.height = window.innerHeight;
+      this.canvasSizes.height = window.innerHeight * 0.9;
 
       this.camera.aspect = this.canvasSizes.width / this.canvasSizes.height;
       this.camera.updateProjectionMatrix();
@@ -145,12 +166,11 @@ export class GameSceneComponent implements OnInit {
         this.scene.add(mesh);
       },
       (xhr) => {
-        console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+        console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
       },
       (error) => {
-          console.log(error)
+        console.log(error);
       }
-    )
-
+    );
   }
 }
