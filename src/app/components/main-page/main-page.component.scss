@@ -1,20 +1,16 @@
 .mainPageCtn {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
 }
 
 app-header {
-    background-color: black;
-    color: white;
+  background-color: black;
+  color: white;
+  height: 10vh;
 }
 
 app-body {
-    background-color: whitesmoke;
-    flex-grow: 50;
-}
-
-app-footer {
-    background-color: gray;
-    margin-top: auto;
+  background-color: whitesmoke;
+  height: 90vh;
 }
