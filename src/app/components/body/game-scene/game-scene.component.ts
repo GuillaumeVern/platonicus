@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 
+import * as CANNON from 'cannon-es';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 @Component({
   selector: 'app-game-scene',
   standalone: true,
@@ -37,6 +39,10 @@ export class GameSceneComponent implements OnInit {
     this.setRenderer();
     this.resizeListener();
     this.animate();
+
+    // controle de la camera
+    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    controls.enableDamping = true;
   }
 
   /**
