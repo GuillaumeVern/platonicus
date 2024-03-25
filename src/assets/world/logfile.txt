@@ -1,0 +1,45 @@
+Log for creating 3D model tile(s) for  10m_-111.06_39.35 
+ 
+DEM_name = USGS/3DEP/10m 
+trlat = 39.373351246115774 
+trlon = -111.01765551702579 
+bllat = 39.33353014832848 
+bllon = -111.10382952825626 
+printres = 0.4 
+ntilesx = 1 
+ntilesy = 1 
+tilewidth = 100.0 
+basethick = 1 
+zscale = 1.0 
+fileformat = STLb 
+no_bottom = False 
+unprojected = False 
+no_normals = True 
+
+process started: 08:44:05.642778 
+
+Region (lat/lon):
+   39.373351246115774 -111.01765551702579 (top right)
+   39.33353014832848 -111.10382952825626 (bottom left) 
+center at [-111.06074252264102, 39.353440697222126]  UTM 12 N ,  EPSG:32612 
+lon/lat size in degrees: [0.08617401123046875, 0.03982109778729637] 
+Earth Engine raster: USGS/3DEP/10m 
+URL for geotiff is:  https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/592f1131a96fe0c725b4cb0e35924929-6e6814390ecbaedbe5ba8247202c9e51:getPixels 
+ geotiff size: 0.12260627746582031 Mb 
+ cell size 29.71064428167037 m, upper left corner (x/y):  491027.8180431662 4358224.699033945 
+full (untiled) raster (height,width)  (150, 251) float64 elev. min/max: 1811.1163330078125 2805.69384765625 
+cell size: 29.71064428167037 m  
+adjusted print res from the requested 0.4 mm to 0.398406374501992 mm to ensure correct model dimensions 
+total model size in mm: 100.0 x 59.76095617529881 
+map scale is 1 : 74573.71714699263 
+Cells per tile (x/y) 251 x 150 
+using single-core only (multi-core is currently broken :( 
+
+1 x 1 tiles, tile size 100.00 x 59.76 mm
+ 
+tile 1 1 : height:  1811.1163330078125 - 14.336837061347241 mm , file size: 4 Mb 
+
+total size for all tiles: 4 Mb 
+added full geotiff as 10m_-111.06_39.35.tif 
+
+processing finished: 08:44:07.106497 

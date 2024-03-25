@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader'
+
 
 @Component({
   selector: 'app-game-scene',
@@ -38,8 +40,10 @@ export class GameSceneComponent implements OnInit {
 
   createThreeJsScene(): void {
     const canvas = document.getElementById('canvas');
+    
     this.addActors();
     this.addCamera();
+
 
     if (!canvas) {
       console.log('On est face à un pb');
@@ -54,19 +58,29 @@ export class GameSceneComponent implements OnInit {
   addActors(): void {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
     dirLight.position.set(-1, 2, 4);
+    dirLight.castShadow = true;
 
     this.hedron = new THREE.Mesh(
       new THREE.IcosahedronGeometry(10, 0),
       this.material
     );
+    this.hedron.castShadow = true;
+    this.hedron.receiveShadow = true;
 
-    this.scene.add(ambientLight, dirLight, this.hedron);
+    this.scene.add(dirLight, this.hedron);
+    this.loadWorld()
   }
 
   addCamera(): void {
+    this.camera.position.x = 0;
+    this.camera.position.y = 30;
     this.camera.position.z = 30;
+    this.camera.castShadow = true;
+    this.camera.receiveShadow = true;
+    this.camera.lookAt(this.hedron.position);
+
     this.scene.add(this.camera);
   }
 
@@ -111,5 +125,32 @@ export class GameSceneComponent implements OnInit {
       this.renderer.setSize(this.canvasSizes.width, this.canvasSizes.height);
       this.renderer.render(this.scene, this.camera);
     });
+  }
+
+  // chargement et parametrage du monde
+  loadWorld(): void {
+    const loader = new STLLoader();
+    loader.load(
+      'assets/world/world.STL',
+      (geometry) => {
+        geometry.computeVertexNormals();
+        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        material.wireframe = false;
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.position.set(-500, -50, 100);
+        mesh.scale.set(10, 10, 10);
+        mesh.rotation.set(-Math.PI / 2, 0, 0);
+        this.scene.add(mesh);
+      },
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+      },
+      (error) => {
+          console.log(error)
+      }
+    )
+
   }
 }
