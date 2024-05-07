@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -17,9 +18,14 @@ export class GameSceneComponent implements OnInit {
   renderer!: THREE.WebGLRenderer;
   clock = new THREE.Clock();
   hedrons: any[] = [];
-  charHedron: any;
-  speedVector: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   elapsedTime: number = 0;
+
+  test: any;
+
+  //Character variables
+  charHedron: any;
+  charLevel: number = 1;
+  speedVector: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
 
   canvasSizes = {
     width: window.innerWidth,
@@ -37,12 +43,25 @@ export class GameSceneComponent implements OnInit {
     this.createThreeJsScene();
     // this.material.vertexColors = true;
     this.setRenderer();
+    this.wut();
     this.resizeListener();
     this.animate();
 
     // controle de la camera
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
     controls.enableDamping = true;
+  }
+
+  wut() {
+    let loader = new GLTFLoader();
+
+    loader.load('assets/shapes/tetratocube.glb', (gltf) => {
+      this.test = gltf.scenes[0].children[0];
+      this.test.material = new THREE.MeshNormalMaterial();
+      this.test.scale.set(10, 10, 10);
+      this.scene.add(this.test);
+      this.test.morphTargetInfluences[0] = 1;
+    });
   }
 
   /**
@@ -76,24 +95,24 @@ export class GameSceneComponent implements OnInit {
     dirLight.castShadow = true;
 
     this.charHedron = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(10, 0),
+      new THREE.TetrahedronGeometry(10, 0),
       this.material
     );
-
+    this.charHedron.rotation.set(0, -Math.PI / 4, 0);
     this.loadWorld();
     this.hedrons.forEach((hedron) => {
       hedron.castShadow = true;
       hedron.receiveShadow = true;
       this.scene.add(hedron);
     });
-    this.scene.add(ambientLight, dirLight, this.charHedron);
+    this.scene.add(ambientLight, dirLight);
   }
 
   /** Add Camera to the scene */
   addCamera(): void {
     this.camera.position.x = 0;
-    this.camera.position.y = 30;
-    this.camera.position.z = 30;
+    this.camera.position.y = 60;
+    this.camera.position.z = 50;
     this.camera.castShadow = true;
     this.camera.receiveShadow = true;
     this.camera.lookAt(this.charHedron.position);
@@ -115,9 +134,9 @@ export class GameSceneComponent implements OnInit {
       hedron.rotation.y = -this.elapsedTime;
       hedron.rotation.z = -this.elapsedTime;
     });
-    this.charHedron.rotation.x = -this.elapsedTime * this.speedVector.x;
-    this.charHedron.rotation.y = this.elapsedTime * this.speedVector.y;
-    this.charHedron.rotation.z = this.elapsedTime * this.speedVector.z;
+    // this.charHedron.rotation.x += -this.elapsedTime * this.speedVector.x;
+    // this.charHedron.rotation.y += this.elapsedTime * this.speedVector.y;
+    // this.charHedron.rotation.z += this.elapsedTime * this.speedVector.z;
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(() => this.animate());
   }
@@ -127,6 +146,36 @@ export class GameSceneComponent implements OnInit {
     if (event.key == 'w') {
       this.speedVector.x += 1;
     }
+    if (event.key == 'u') {
+      this.charLevel += 1;
+      this.evolveGeometry();
+    }
+    if (event.key == 'm') {
+      if (this.test.morphTargetInfluences[0] > 0)
+        this.test.morphTargetInfluences[0] -= 0.03;
+    }
+  }
+
+  evolveGeometry() {
+    this.removeGeometry(this.charHedron);
+    const geometryLine = [
+      new THREE.TetrahedronGeometry(10),
+      new THREE.BoxGeometry(10),
+      new THREE.OctahedronGeometry(10),
+      new THREE.DodecahedronGeometry(10),
+      new THREE.IcosahedronGeometry(10),
+    ];
+    this.charHedron = new THREE.Mesh(
+      geometryLine[this.charLevel],
+      this.material
+    );
+    this.scene.add(this.charHedron);
+  }
+
+  removeGeometry(geometry: any) {
+    geometry.geometry.dispose();
+    geometry.material.dispose();
+    this.scene.remove(geometry);
   }
 
   /**
@@ -161,7 +210,7 @@ export class GameSceneComponent implements OnInit {
       'assets/world/world.STL',
       (geometry) => {
         geometry.computeVertexNormals();
-        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        const material = new THREE.MeshLambertMaterial({ color: 0xaa00ff });
         material.wireframe = false;
         const mesh = new THREE.Mesh(geometry, material);
         mesh.castShadow = true;
