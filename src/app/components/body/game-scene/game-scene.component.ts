@@ -4,6 +4,9 @@ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 
 import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+
+import { threeToCannon, ShapeType } from 'three-to-cannon';
 @Component({
   selector: 'app-game-scene',
   standalone: true,
@@ -18,8 +21,13 @@ export class GameSceneComponent implements OnInit {
   clock = new THREE.Clock();
   hedrons: any[] = [];
   charHedron: any;
+  icosahedronBody!: CANNON.Body;
   speedVector: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   elapsedTime: number = 0;
+  physicsWorld!: CANNON.World;
+  stats!: Stats;
+  controls!: OrbitControls;
+  delta: number = 0;
 
   canvasSizes = {
     width: window.innerWidth,
@@ -34,15 +42,21 @@ export class GameSceneComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.physics();
     this.createThreeJsScene();
     // this.material.vertexColors = true;
     this.setRenderer();
     this.resizeListener();
-    this.animate();
-
+    
     // controle de la camera
-    const controls = new OrbitControls(this.camera, this.renderer.domElement);
-    controls.enableDamping = true;
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    
+    // statistiques
+    this.stats = new Stats();
+    document.body.appendChild(this.stats.dom);
+
+    this.animate();
   }
 
   /**
@@ -79,6 +93,15 @@ export class GameSceneComponent implements OnInit {
       new THREE.IcosahedronGeometry(10, 0),
       this.material
     );
+    let icosahedronShape = threeToCannon(this.charHedron, { type: ShapeType.HULL });
+    this.icosahedronBody = new CANNON.Body({ mass: 1 });
+    if (icosahedronShape !== null) {
+      this.icosahedronBody.addShape(icosahedronShape.shape);
+    }
+    this.icosahedronBody.position.x = this.charHedron.position.x;
+    this.icosahedronBody.position.y = this.charHedron.position.y;
+    this.icosahedronBody.position.z = this.charHedron.position.z;
+    this.physicsWorld.addBody(this.icosahedronBody);
 
     this.loadWorld();
     this.hedrons.forEach((hedron) => {
@@ -109,17 +132,27 @@ export class GameSceneComponent implements OnInit {
 
   /** Use clock to animate movements in scene each frame */
   animate(): void {
-    this.elapsedTime = this.clock.getElapsedTime();
-    this.hedrons.forEach((hedron) => {
-      hedron.rotation.x = -this.elapsedTime;
-      hedron.rotation.y = -this.elapsedTime;
-      hedron.rotation.z = -this.elapsedTime;
-    });
-    this.charHedron.rotation.x = -this.elapsedTime * this.speedVector.x;
-    this.charHedron.rotation.y = this.elapsedTime * this.speedVector.y;
-    this.charHedron.rotation.z = this.elapsedTime * this.speedVector.z;
-    this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(() => this.animate());
+    this.elapsedTime = this.clock.getElapsedTime();
+    this.controls.update();
+    this.delta = Math.min(this.clock.getDelta(), 0.1);
+    this.physicsWorld.step(this.delta);
+    
+    //console.log(this.icosahedronBody.position.x, this.icosahedronBody.position.y, this.icosahedronBody.position.z)
+    //console.log(this.charHedron.position.x, this.charHedron.position.y, this.charHedron.position.z)
+    this.charHedron.position.set(
+      this.icosahedronBody.position.x,
+      this.icosahedronBody.position.y,
+      this.icosahedronBody.position.z
+    )
+    this.charHedron.quaternion.set(
+      this.icosahedronBody.quaternion.x,
+      this.icosahedronBody.quaternion.y,
+      this.icosahedronBody.quaternion.z,
+      this.icosahedronBody.quaternion.w
+    )
+    this.renderer.render(this.scene, this.camera);
+    this.stats !== undefined ? this.stats.update() : null;
   }
 
   /** Bind key events to actions */
@@ -170,6 +203,7 @@ export class GameSceneComponent implements OnInit {
         mesh.scale.set(10, 10, 10);
         mesh.rotation.set(-Math.PI / 2, 0, 0);
         this.scene.add(mesh);
+      
       },
       (xhr) => {
         console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
@@ -179,4 +213,11 @@ export class GameSceneComponent implements OnInit {
       }
     );
   }
+
+  // gestion de la physique
+  physics(): void {
+    this.physicsWorld = new CANNON.World()
+    this.physicsWorld.gravity.set(0, -9.82, 0)
+  }
+
 }
