@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-
 import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { AnimateMorphService } from '../../../services/animate-morph.service';
+import { async } from 'rxjs/internal/scheduler/async';
+
 @Component({
   selector: 'app-game-scene',
   standalone: true,
@@ -21,6 +23,7 @@ export class GameSceneComponent implements OnInit {
   elapsedTime: number = 0;
 
   test: any;
+  test2: any;
 
   //Character variables
   charHedron: any;
@@ -39,11 +42,13 @@ export class GameSceneComponent implements OnInit {
     1000
   );
 
+  constructor(private animateMorphService: AnimateMorphService) {}
+
   ngOnInit(): void {
     this.createThreeJsScene();
     // this.material.vertexColors = true;
     this.setRenderer();
-    this.wut();
+    this.loadMorphs();
     this.resizeListener();
     this.animate();
 
@@ -52,17 +57,7 @@ export class GameSceneComponent implements OnInit {
     controls.enableDamping = true;
   }
 
-  wut() {
-    let loader = new GLTFLoader();
-
-    loader.load('assets/shapes/tetratocube.glb', (gltf) => {
-      this.test = gltf.scenes[0].children[0];
-      this.test.material = new THREE.MeshNormalMaterial();
-      this.test.scale.set(10, 10, 10);
-      this.scene.add(this.test);
-      this.test.morphTargetInfluences[0] = 1;
-    });
-  }
+  
 
   /**
    * Create the base scene using the canvas, adding actors and camera
@@ -134,6 +129,7 @@ export class GameSceneComponent implements OnInit {
       hedron.rotation.y = -this.elapsedTime;
       hedron.rotation.z = -this.elapsedTime;
     });
+
     // this.charHedron.rotation.x += -this.elapsedTime * this.speedVector.x;
     // this.charHedron.rotation.y += this.elapsedTime * this.speedVector.y;
     // this.charHedron.rotation.z += this.elapsedTime * this.speedVector.z;
@@ -147,12 +143,22 @@ export class GameSceneComponent implements OnInit {
       this.speedVector.x += 1;
     }
     if (event.key == 'u') {
-      this.charLevel += 1;
       this.evolveGeometry();
+    }
+    if (event.key == 'p') {
+      this.playMorph();
     }
     if (event.key == 'm') {
       if (this.test.morphTargetInfluences[0] > 0)
         this.test.morphTargetInfluences[0] -= 0.03;
+      if (this.test2.morphTargetInfluences[0] > 0)
+      {
+        this.test2.morphTargetInfluences[0] -= 0.03;
+        this.test2.morphTargetInfluences[1] += 0.03;
+      } else {
+        this.test2.morphTargetInfluences[0] = 0;
+        this.test2.morphTargetInfluences[1] = 1;
+      }
     }
   }
 
@@ -165,10 +171,12 @@ export class GameSceneComponent implements OnInit {
       new THREE.DodecahedronGeometry(10),
       new THREE.IcosahedronGeometry(10),
     ];
+    this.charLevel++;
     this.charHedron = new THREE.Mesh(
       geometryLine[this.charLevel],
       this.material
     );
+    this.playMorph();
     this.scene.add(this.charHedron);
   }
 
@@ -203,7 +211,7 @@ export class GameSceneComponent implements OnInit {
     });
   }
 
-  // chargement et parametrage du monde
+  /** chargement et parametrage du monde */ 
   loadWorld(): void {
     const loader = new STLLoader();
     loader.load(
@@ -227,5 +235,34 @@ export class GameSceneComponent implements OnInit {
         console.log(error);
       }
     );
+  }
+
+  /** Loading morph shapes */
+  loadMorphs() {
+    let loader = new GLTFLoader();
+
+    loader.load('assets/shapes/tetratocube.glb', (gltf) => {
+      this.test = gltf.scenes[0].children[0];
+      this.test.material = new THREE.MeshNormalMaterial();
+      this.test.scale.set(10, 10, 10);
+      this.scene.add(this.test);
+      this.test.morphTargetInfluences[0] = 1;
+    });
+
+    loader.load('assets/shapes/octacube.glb', (gltf) => {
+      this.test2 = gltf.scenes[0].children[0];
+      this.test2.material = new THREE.MeshNormalMaterial();
+      this.test2.scale.set(10, 10, 10);
+      this.test2.position.set(50, 0, 0);
+      this.scene.add(this.test2);
+      this.test2.morphTargetInfluences[0] = 1;
+    });
+  }
+
+  playMorph() {
+    this.animateMorphService.getMorphProgress().subscribe((progress) => {
+      this.test.morphTargetInfluences[0] = 1- progress;
+    });
+    this.animateMorphService.animate();
   }
 }
