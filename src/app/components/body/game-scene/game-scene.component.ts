@@ -2,10 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { AnimateMorphService } from '../../../services/animate-morph.service';
-import { async } from 'rxjs/internal/scheduler/async';
 
 @Component({
   selector: 'app-game-scene',
@@ -16,18 +14,16 @@ import { async } from 'rxjs/internal/scheduler/async';
 })
 export class GameSceneComponent implements OnInit {
   scene = new THREE.Scene();
-  material = new THREE.MeshNormalMaterial();
+  material = new THREE.MeshMatcapMaterial();
   renderer!: THREE.WebGLRenderer;
   clock = new THREE.Clock();
   hedrons: any[] = [];
   elapsedTime: number = 0;
-
-  test: any;
-  test2: any;
+  morphic: any[] = [];
 
   //Character variables
   charHedron: any;
-  charLevel: number = 1;
+  charLevel: number = 0;
   speedVector: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
 
   canvasSizes = {
@@ -42,12 +38,13 @@ export class GameSceneComponent implements OnInit {
     1000
   );
 
-  constructor(private animateMorphService: AnimateMorphService) {}
+  constructor(private animateMorphService: AnimateMorphService) { }
 
   ngOnInit(): void {
     this.createThreeJsScene();
     // this.material.vertexColors = true;
-    this.setRenderer();
+    this.renderer.setClearColor(0xe232222, 1);
+    this.renderer.setSize(this.canvasSizes.width, this.canvasSizes.height);
     this.loadMorphs();
     this.resizeListener();
     this.animate();
@@ -57,7 +54,7 @@ export class GameSceneComponent implements OnInit {
     controls.enableDamping = true;
   }
 
-  
+
 
   /**
    * Create the base scene using the canvas, adding actors and camera
@@ -93,7 +90,8 @@ export class GameSceneComponent implements OnInit {
       new THREE.TetrahedronGeometry(10, 0),
       this.material
     );
-    this.charHedron.rotation.set(0, -Math.PI / 4, 0);
+    this.charHedron.rotation.set(-Math.PI / 4 - 0.2, -Math.PI / 4, 0);
+    this.scene.add(this.charHedron);
     this.loadWorld();
     this.hedrons.forEach((hedron) => {
       hedron.castShadow = true;
@@ -113,12 +111,6 @@ export class GameSceneComponent implements OnInit {
     this.camera.lookAt(this.charHedron.position);
 
     this.scene.add(this.camera);
-  }
-
-  /** Renderer init settings */
-  setRenderer(): void {
-    this.renderer.setClearColor(0xe232222, 1);
-    this.renderer.setSize(this.canvasSizes.width, this.canvasSizes.height);
   }
 
   /** Use clock to animate movements in scene each frame */
@@ -141,43 +133,59 @@ export class GameSceneComponent implements OnInit {
   actKeydown(event: { key: string }) {
     if (event.key == 'w') {
       this.speedVector.x += 1;
+
+    }
+    if (event.key == 'l') {
+      console.log("charLevel = " + this.charLevel)
+
     }
     if (event.key == 'u') {
-      this.evolveGeometry();
+      this.evolveGeometry(1);
     }
     if (event.key == 'p') {
       this.playMorph();
     }
     if (event.key == 'm') {
-      if (this.test.morphTargetInfluences[0] > 0)
-        this.test.morphTargetInfluences[0] -= 0.03;
-      if (this.test2.morphTargetInfluences[0] > 0)
-      {
-        this.test2.morphTargetInfluences[0] -= 0.03;
-        this.test2.morphTargetInfluences[1] += 0.03;
+      if (this.morphic[0].morphTargetInfluences[0] > 0)
+        this.morphic[0].morphTargetInfluences[0] -= 0.03;
+      if (this.morphic[1].morphTargetInfluences[0] > 0) {
+        this.morphic[1].morphTargetInfluences[0] -= 0.03;
+        this.morphic[1].morphTargetInfluences[1] += 0.03;
       } else {
-        this.test2.morphTargetInfluences[0] = 0;
-        this.test2.morphTargetInfluences[1] = 1;
+        this.morphic[1].morphTargetInfluences[0] = 0;
+        this.morphic[1].morphTargetInfluences[1] = 1;
       }
     }
   }
 
-  evolveGeometry() {
-    this.removeGeometry(this.charHedron);
-    const geometryLine = [
-      new THREE.TetrahedronGeometry(10),
-      new THREE.BoxGeometry(10),
-      new THREE.OctahedronGeometry(10),
-      new THREE.DodecahedronGeometry(10),
-      new THREE.IcosahedronGeometry(10),
-    ];
-    this.charLevel++;
-    this.charHedron = new THREE.Mesh(
-      geometryLine[this.charLevel],
-      this.material
-    );
-    this.playMorph();
-    this.scene.add(this.charHedron);
+  evolveGeometry(phase: number) {
+    if (phase == 1) {
+      console.log("phase 1");
+      this.removeGeometry(this.charHedron);
+      this.morphic[this.charLevel].position.set(
+        this.charHedron.position.x,
+        this.charHedron.position.y,
+        this.charHedron.position.z);
+      this.scene.add(this.morphic[this.charLevel]);
+      this.playMorph();
+    }
+
+    if (phase == 2) {
+      console.log("phase 2");
+      const geometryLine = [
+        new THREE.TetrahedronGeometry(10),
+        new THREE.BoxGeometry(15.5, 15.5, 15.5),
+        new THREE.OctahedronGeometry(13),
+        new THREE.DodecahedronGeometry(10),
+        new THREE.IcosahedronGeometry(10),
+      ];
+      if (this.charLevel < 4) { this.charLevel++; }
+      this.charHedron = new THREE.Mesh(
+        geometryLine[this.charLevel],
+        this.material
+      );
+      this.scene.add(this.charHedron);
+    }
   }
 
   removeGeometry(geometry: any) {
@@ -211,7 +219,7 @@ export class GameSceneComponent implements OnInit {
     });
   }
 
-  /** chargement et parametrage du monde */ 
+  /** chargement et parametrage du monde */
   loadWorld(): void {
     const loader = new STLLoader();
     loader.load(
@@ -242,27 +250,37 @@ export class GameSceneComponent implements OnInit {
     let loader = new GLTFLoader();
 
     loader.load('assets/shapes/tetratocube.glb', (gltf) => {
-      this.test = gltf.scenes[0].children[0];
-      this.test.material = new THREE.MeshNormalMaterial();
-      this.test.scale.set(10, 10, 10);
-      this.scene.add(this.test);
-      this.test.morphTargetInfluences[0] = 1;
+      this.morphic[0] = gltf.scenes[0].children[0];
+      this.morphic[0].material = new THREE.MeshMatcapMaterial();
+      this.morphic[0].scale.set(8, 8, 8);
+      this.morphic[0].morphTargetInfluences[0] = 1;
     });
 
     loader.load('assets/shapes/octacube.glb', (gltf) => {
-      this.test2 = gltf.scenes[0].children[0];
-      this.test2.material = new THREE.MeshNormalMaterial();
-      this.test2.scale.set(10, 10, 10);
-      this.test2.position.set(50, 0, 0);
-      this.scene.add(this.test2);
-      this.test2.morphTargetInfluences[0] = 1;
+      this.morphic[1] = gltf.scenes[0].children[0];
+      this.morphic[1].material = new THREE.MeshMatcapMaterial();
+      this.morphic[1].scale.set(11, 11, 11);
+      this.morphic[1].morphTargetInfluences[0] = 1;
     });
   }
 
   playMorph() {
-    this.animateMorphService.getMorphProgress().subscribe((progress) => {
-      this.test.morphTargetInfluences[0] = 1- progress;
-    });
-    this.animateMorphService.animate();
+    let morphProgress = 0;
+    let intervalId = setInterval(() => {
+      morphProgress = THREE.MathUtils.damp(morphProgress, 1, 4, this.clock.getDelta());
+      if (morphProgress >= 0.98) {
+        this.removeGeometry(this.morphic[this.charLevel]);
+        this.evolveGeometry(2);
+        morphProgress = 0
+        // Stop the interval when morph is complete
+        clearInterval(intervalId);
+      }
+
+      // Apply morphProgress
+      this.morphic[this.charLevel].morphTargetInfluences[0] = 1 - morphProgress;
+      if (this.charLevel == 1) {
+        this.morphic[this.charLevel].morphTargetInfluences[1] = morphProgress;
+      }
+    }, 10); // Run every 100 milliseconds
   }
 }
