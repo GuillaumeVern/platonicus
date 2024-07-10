@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
-
-import * as CANNON from 'cannon-es';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 import { threeToCannon, ShapeType } from 'three-to-cannon';
+import { AnimateMorphService } from '../../../services/animate-morph.service';
+
 @Component({
   selector: 'app-game-scene',
   standalone: true,
@@ -16,14 +17,13 @@ import { threeToCannon, ShapeType } from 'three-to-cannon';
 })
 export class GameSceneComponent implements OnInit {
   scene = new THREE.Scene();
-  material = new THREE.MeshNormalMaterial();
+  material = new THREE.MeshMatcapMaterial();
   renderer!: THREE.WebGLRenderer;
   clock = new THREE.Clock();
   hedrons: any[] = [];
   charHedronMesh!: THREE.Mesh;
   icosahedronBody!: CANNON.Body;
   oldPosition: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
-  speedVector: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   elapsedTime: number = 0;
   physicsWorld!: CANNON.World;
   stats!: Stats;
@@ -31,6 +31,12 @@ export class GameSceneComponent implements OnInit {
   delta: number = 0;
   groundMesh!: THREE.Mesh;
   groundBody!: CANNON.Body;
+  morphic: any[] = [];
+
+  //Character variables
+  charHedron: any;
+  charLevel: number = 0;
+  speedVector: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
 
   canvasSizes = {
     width: window.innerWidth,
@@ -44,23 +50,29 @@ export class GameSceneComponent implements OnInit {
     10000
   );
 
+  constructor(private animateMorphService: AnimateMorphService) { }
+
   ngOnInit(): void {
     this.physics();
     this.createThreeJsScene();
     // this.material.vertexColors = true;
-    this.setRenderer();
+    this.renderer.setClearColor(0xe232222, 1);
+    this.renderer.setSize(this.canvasSizes.width, this.canvasSizes.height);
+    this.loadMorphs();
     this.resizeListener();
-    
+
     // controle de la camera
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
-    
+
     // statistiques
     this.stats = new Stats();
     document.body.appendChild(this.stats.dom);
 
     this.animate();
   }
+
+
 
   /**
    * Create the base scene using the canvas, adding actors and camera
@@ -117,43 +129,53 @@ export class GameSceneComponent implements OnInit {
 
     this.physicsWorld.addBody(this.icosahedronBody);
 
+    this.charHedron = new THREE.Mesh(
+      new THREE.TetrahedronGeometry(10, 0),
+      this.material
+    );
+    this.charHedron.rotation.set(-Math.PI / 4 - 0.2, -Math.PI / 4, 0);
+    this.scene.add(this.charHedron);
     this.loadWorld();
     this.hedrons.forEach((hedron) => {
       hedron.castShadow = true;
       hedron.receiveShadow = true;
       this.scene.add(hedron);
     });
-    this.scene.add(ambientLight, dirLight, this.charHedronMesh);
-
+    this.scene.add(ambientLight, dirLight);
   }
 
   /** Add Camera to the scene */
   addCamera(): void {
     this.camera.position.x = 0;
-    this.camera.position.y = 100;
-    this.camera.position.z = 100;
+    this.camera.position.y = 60;
+    this.camera.position.z = 50;
     this.camera.castShadow = true;
     this.camera.receiveShadow = true;
-    
+
 
     this.scene.add(this.camera);
   }
 
-  /** Renderer init settings */
-  setRenderer(): void {
-    this.renderer.setClearColor(0xe232222, 1);
-    this.renderer.setSize(this.canvasSizes.width, this.canvasSizes.height);
-  }
-
   /** Use clock to animate movements in scene each frame */
   animate(): void {
+    this.elapsedTime = this.clock.getElapsedTime();
+    this.hedrons.forEach((hedron) => {
+      hedron.rotation.x = -this.elapsedTime;
+      hedron.rotation.y = -this.elapsedTime;
+      hedron.rotation.z = -this.elapsedTime;
+    });
+
+    // this.charHedron.rotation.x += -this.elapsedTime * this.speedVector.x;
+    // this.charHedron.rotation.y += this.elapsedTime * this.speedVector.y;
+    // this.charHedron.rotation.z += this.elapsedTime * this.speedVector.z;
+    this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(() => this.animate());
     this.elapsedTime = this.clock.getElapsedTime();
     this.controls.update();
-    
+
     //console.log(this.icosahedronBody.position.x, this.icosahedronBody.position.y, this.icosahedronBody.position.z)
     //console.log(this.charHedron.position.x, this.charHedron.position.y, this.charHedron.position.z)
-    
+
     this.charHedronMesh.position.set(
       this.icosahedronBody.position.x,
       this.icosahedronBody.position.y,
@@ -179,7 +201,65 @@ export class GameSceneComponent implements OnInit {
   actKeydown(event: { key: string }) {
     if (event.key == 'w') {
       this.speedVector.x += 1;
+
     }
+    if (event.key == 'l') {
+      console.log("charLevel = " + this.charLevel)
+
+    }
+    if (event.key == 'u') {
+      this.evolveGeometry(1);
+    }
+    if (event.key == 'p') {
+      this.playMorph();
+    }
+    if (event.key == 'm') {
+      if (this.morphic[0].morphTargetInfluences[0] > 0)
+        this.morphic[0].morphTargetInfluences[0] -= 0.03;
+      if (this.morphic[1].morphTargetInfluences[0] > 0) {
+        this.morphic[1].morphTargetInfluences[0] -= 0.03;
+        this.morphic[1].morphTargetInfluences[1] += 0.03;
+      } else {
+        this.morphic[1].morphTargetInfluences[0] = 0;
+        this.morphic[1].morphTargetInfluences[1] = 1;
+      }
+    }
+  }
+
+  evolveGeometry(phase: number) {
+    if (phase == 1) {
+      console.log("phase 1");
+      this.removeGeometry(this.charHedron);
+      this.morphic[this.charLevel].position.set(
+        this.charHedron.position.x,
+        this.charHedron.position.y,
+        this.charHedron.position.z);
+      this.scene.add(this.morphic[this.charLevel]);
+      this.playMorph();
+    }
+
+    if (phase == 2) {
+      console.log("phase 2");
+      const geometryLine = [
+        new THREE.TetrahedronGeometry(10),
+        new THREE.BoxGeometry(15.5, 15.5, 15.5),
+        new THREE.OctahedronGeometry(13),
+        new THREE.DodecahedronGeometry(10),
+        new THREE.IcosahedronGeometry(10),
+      ];
+      if (this.charLevel < 4) { this.charLevel++; }
+      this.charHedron = new THREE.Mesh(
+        geometryLine[this.charLevel],
+        this.material
+      );
+      this.scene.add(this.charHedron);
+    }
+  }
+
+  removeGeometry(geometry: any) {
+    geometry.geometry.dispose();
+    geometry.material.dispose();
+    this.scene.remove(geometry);
   }
 
   /**
@@ -207,16 +287,16 @@ export class GameSceneComponent implements OnInit {
     });
   }
 
-  // chargement et parametrage du monde
+  /** chargement et parametrage du monde */
   loadWorld(): void {
     const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
     material.wireframe = false;
     let tempHeightMap: number[][] = [];
     for (let x = 0; x < 100; x++) {
-        tempHeightMap[x] = [];
-        for (let y = 0; y < 100; y++) {
-            tempHeightMap[x][y] = 1;
-        }
+      tempHeightMap[x] = [];
+      for (let y = 0; y < 100; y++) {
+        tempHeightMap[x][y] = 1;
+      }
     }
     let groundShape = new CANNON.Heightfield(tempHeightMap, { elementSize: 1 });
     this.groundBody = new CANNON.Body({ mass: 0 });
@@ -226,13 +306,35 @@ export class GameSceneComponent implements OnInit {
     this.groundBody.material = new CANNON.Material();
     this.physicsWorld.addBody(this.groundBody);
 
+    const loader = new STLLoader();
+    loader.load(
+      'assets/world/world.STL',
+      (geometry) => {
+        geometry.computeVertexNormals();
+        const material = new THREE.MeshLambertMaterial({ color: 0xaa00ff });
+        material.wireframe = false;
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.position.set(-500, -50, 100);
+        mesh.scale.set(10, 10, 10);
+        mesh.rotation.set(-Math.PI / 2, 0, 0);
+        this.scene.add(mesh);
+      },
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
 
     // const loader = new STLLoader();
     // loader.load(
     //   'assets/world/world.STL',
     //   (geometry) => {
     //     geometry.computeVertexNormals();
-        
+
     //     const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
     //     material.wireframe = false;
     //     this.groundMesh = new THREE.Mesh(geometry, material);
@@ -242,7 +344,7 @@ export class GameSceneComponent implements OnInit {
     //     this.groundMesh.scale.set(10, 10, 10);
     //     this.groundMesh.rotation.set(-Math.PI / 2, 0, 0);
     //     this.groundMesh.geometry.computeBoundingBox();
-        
+
     //     let groundShape = threeToCannon(this.groundMesh, { type: ShapeType.HULL });
     //     this.groundBody = new CANNON.Body({ mass: 0 });
     //     if (groundShape !== null) {
@@ -260,13 +362,13 @@ export class GameSceneComponent implements OnInit {
     //       this.groundMesh.quaternion.w
     //     )
 
-        
 
-        
+
+
     //     this.physicsWorld.addBody(this.groundBody);
     //     this.scene.add(this.groundMesh);
-        
-      
+
+
     //   },
     //   (xhr) => {
     //     console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
@@ -283,4 +385,44 @@ export class GameSceneComponent implements OnInit {
     this.physicsWorld.gravity.set(0, -9.82, 0)
   }
 
+
+
+  /** Loading morph shapes */
+  loadMorphs() {
+    let loader = new GLTFLoader();
+
+    loader.load('assets/shapes/tetratocube.glb', (gltf) => {
+      this.morphic[0] = gltf.scenes[0].children[0];
+      this.morphic[0].material = new THREE.MeshMatcapMaterial();
+      this.morphic[0].scale.set(8, 8, 8);
+      this.morphic[0].morphTargetInfluences[0] = 1;
+    });
+
+    loader.load('assets/shapes/octacube.glb', (gltf) => {
+      this.morphic[1] = gltf.scenes[0].children[0];
+      this.morphic[1].material = new THREE.MeshMatcapMaterial();
+      this.morphic[1].scale.set(11, 11, 11);
+      this.morphic[1].morphTargetInfluences[0] = 1;
+    });
+  }
+
+  playMorph() {
+    let morphProgress = 0;
+    let intervalId = setInterval(() => {
+      morphProgress = THREE.MathUtils.damp(morphProgress, 1, 4, this.clock.getDelta());
+      if (morphProgress >= 0.98) {
+        this.removeGeometry(this.morphic[this.charLevel]);
+        this.evolveGeometry(2);
+        morphProgress = 0
+        // Stop the interval when morph is complete
+        clearInterval(intervalId);
+      }
+
+      // Apply morphProgress
+      this.morphic[this.charLevel].morphTargetInfluences[0] = 1 - morphProgress;
+      if (this.charLevel == 1) {
+        this.morphic[this.charLevel].morphTargetInfluences[1] = morphProgress;
+      }
+    }, 10); // Run every 100 milliseconds
+  }
 }
