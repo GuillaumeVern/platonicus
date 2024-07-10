@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -22,15 +21,11 @@ export class GameSceneComponent implements OnInit {
   clock = new THREE.Clock();
   hedrons: any[] = [];
   charHedronMesh!: THREE.Mesh;
-  icosahedronBody!: CANNON.Body;
-  oldPosition: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   elapsedTime: number = 0;
-  physicsWorld!: CANNON.World;
   stats!: Stats;
   controls!: OrbitControls;
   delta: number = 0;
   groundMesh!: THREE.Mesh;
-  groundBody!: CANNON.Body;
   morphic: any[] = [];
 
   //Character variables
@@ -53,7 +48,6 @@ export class GameSceneComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.physics();
     this.createThreeJsScene();
     // this.material.vertexColors = true;
     this.renderer.setClearColor(0xe232222, 1);
@@ -63,11 +57,11 @@ export class GameSceneComponent implements OnInit {
 
     // controle de la camera
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.enableDamping = true;
+    // this.controls.enableDamping = true;
 
     // statistiques
-    this.stats = new Stats();
-    document.body.appendChild(this.stats.dom);
+    // this.stats = new Stats();
+    // document.body.appendChild(this.stats.dom);
 
     this.animate();
   }
@@ -109,25 +103,6 @@ export class GameSceneComponent implements OnInit {
       this.material
     );
     this.charHedronMesh.position.set(0, 200, 0)
-    this.oldPosition = this.charHedronMesh.position.clone();
-    let icosahedronShape = threeToCannon(this.charHedronMesh, { type: ShapeType.HULL });
-    this.icosahedronBody = new CANNON.Body({ mass: 1 });
-    if (icosahedronShape !== null) {
-      this.icosahedronBody.addShape(icosahedronShape.shape);
-    }
-    this.icosahedronBody.position.set(
-      this.charHedronMesh.position.x,
-      this.charHedronMesh.position.y,
-      this.charHedronMesh.position.z
-    )
-    this.icosahedronBody.quaternion.set(
-      this.charHedronMesh.quaternion.x,
-      this.charHedronMesh.quaternion.y,
-      this.charHedronMesh.quaternion.z,
-      this.charHedronMesh.quaternion.w
-    )
-
-    this.physicsWorld.addBody(this.icosahedronBody);
 
     this.charHedron = new THREE.Mesh(
       new THREE.TetrahedronGeometry(10, 0),
@@ -147,10 +122,12 @@ export class GameSceneComponent implements OnInit {
   /** Add Camera to the scene */
   addCamera(): void {
     this.camera.position.x = 0;
-    this.camera.position.y = 60;
+    this.camera.position.y = 100;
     this.camera.position.z = 50;
     this.camera.castShadow = true;
     this.camera.receiveShadow = true;
+
+    this.camera.lookAt(0, 0, 0);
 
 
     this.scene.add(this.camera);
@@ -176,23 +153,14 @@ export class GameSceneComponent implements OnInit {
     //console.log(this.icosahedronBody.position.x, this.icosahedronBody.position.y, this.icosahedronBody.position.z)
     //console.log(this.charHedron.position.x, this.charHedron.position.y, this.charHedron.position.z)
 
-    this.charHedronMesh.position.set(
-      this.icosahedronBody.position.x,
-      this.icosahedronBody.position.y,
-      this.icosahedronBody.position.z
-    )
     // this.charHedronMesh.quaternion.set(
     //   this.icosahedronBody.quaternion.x,
     //   this.icosahedronBody.quaternion.y,
     //   this.icosahedronBody.quaternion.z,
     //   this.icosahedronBody.quaternion.w
     // )
-    let posDiff = this.charHedronMesh.position.clone().sub(this.oldPosition);
-    this.camera.position.add(posDiff);
-    this.oldPosition = this.charHedronMesh.position.clone();
     this.camera.lookAt(this.charHedronMesh.position);
 
-    this.physicsWorld.fixedStep()
     this.renderer.render(this.scene, this.camera);
     this.stats !== undefined ? this.stats.update() : null;
   }
@@ -298,13 +266,6 @@ export class GameSceneComponent implements OnInit {
         tempHeightMap[x][y] = 1;
       }
     }
-    let groundShape = new CANNON.Heightfield(tempHeightMap, { elementSize: 1 });
-    this.groundBody = new CANNON.Body({ mass: 0 });
-    this.groundBody.addShape(groundShape);
-    this.groundBody.position.set(0, 0, 0);
-    this.groundBody.quaternion.set(0, 0, 0, 1);
-    this.groundBody.material = new CANNON.Material();
-    this.physicsWorld.addBody(this.groundBody);
 
     const loader = new STLLoader();
     loader.load(
@@ -380,11 +341,6 @@ export class GameSceneComponent implements OnInit {
   }
 
   // gestion de la physique
-  physics(): void {
-    this.physicsWorld = new CANNON.World()
-    this.physicsWorld.gravity.set(0, -9.82, 0)
-  }
-
 
 
   /** Loading morph shapes */
