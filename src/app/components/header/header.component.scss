@@ -3,3 +3,10 @@
         margin-inline: 4px
     }
 }
+
+nav {
+    > div {
+        margin-inline: 8px;
+        cursor: pointer;
+    }
+}
