@@ -10,4 +10,5 @@ import { GameSceneComponent } from './game-scene/game-scene.component';
 })
 export class BodyComponent {
 
+
 }
