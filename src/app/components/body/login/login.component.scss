@@ -1,0 +1,11 @@
+.login-form {
+    > div > .label-input {
+        margin-block: 12px;
+        text-align: end;
+        > input {
+            border-radius: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    }
+}
