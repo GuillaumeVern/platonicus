@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 import { threeToCannon, ShapeType } from 'three-to-cannon';
-import { AnimateMorphService } from '../../../services/animate-morph.service';
 
 @Component({
   selector: 'app-game-scene',
@@ -50,7 +50,7 @@ export class GameSceneComponent implements OnInit {
     10000
   );
 
-  constructor(private animateMorphService: AnimateMorphService) { }
+  constructor() { }
 
   ngOnInit(): void {
     this.physics();
