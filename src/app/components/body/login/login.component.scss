@@ -1,11 +1,28 @@
 .login-form {
-    > div > .label-input {
+    width: 35vw;
+    height: fit-content;
+    background-color: lightgray;
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    justify-content: center;
+
+    >div>.label-input {
         margin-block: 12px;
         text-align: end;
-        > input {
+
+        >input {
             border-radius: 10px;
             padding: 10px;
             border: 1px solid #ccc;
         }
     }
+}
+
+.login-form-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
