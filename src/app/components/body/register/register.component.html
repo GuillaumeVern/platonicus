@@ -1,1 +1,70 @@
-<p>register works!</p>
+<div class="registerCtn">
+  <mat-card class="registerCard">
+    <mat-card-header class="cardHeader">
+      <mat-card-title>Register</mat-card-title>
+      <button (click)="changeMode()" color="primary" mat-flat-button>
+        Login
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <form
+        [formGroup]="registerForm"
+        (ngSubmit)="submit()"
+        class="registerForm"
+      >
+        <mat-form-field appearance="outline">
+          <input
+            type="text"
+            matInput
+            placeholder="Username"
+            formControlName="username"
+          />
+          @if (registerForm.get('username')?.invalid) {
+          <mat-error>Minimum Length is 4</mat-error>
+          }
+          <mat-error *ngIf="registerForm.hasError('minLength')"
+            >Minimum Length is 4 characters</mat-error
+          >
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <input
+            type="password"
+            matInput
+            placeholder="Password"
+            formControlName="password"
+          />
+          @if (registerForm.get('password')?.invalid) {
+          <mat-error>Minimum Length is 4</mat-error>
+          }
+          <mat-error *ngIf="registerForm.hasError('minLength')"
+            >Minimum Length is 4 characters</mat-error
+          >
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <input
+            type="password"
+            matInput
+            placeholder="Confirm Password"
+            formControlName="passwordConfirm"
+          />
+          <mat-error *ngIf="registerForm.hasError('notSame')"
+            >Passwords do not match</mat-error
+          >
+        </mat-form-field>
+
+        <div class="button">
+          <button
+            [disabled]="!registerForm.valid"
+            type="submit"
+            mat-flat-button
+            color="primary"
+            *ngIf="!loading"
+          >
+            Register
+          </button>
+          <mat-spinner diameter="50" *ngIf="loading"></mat-spinner>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
