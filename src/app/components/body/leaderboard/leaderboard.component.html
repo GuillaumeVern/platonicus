@@ -1,1 +1,33 @@
-<p>leaderboard works!</p>
+<div class="leaderboard">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title
+        >Leaderboard : {{ playerList.length }} current players</mat-card-title
+      >
+    </mat-card-header>
+    <mat-card-content class="leaderboardCard">
+      <table class="leaderboardTable">
+        <tr>
+          <th>Rank</th>
+          <th>Username</th>
+          <th>Highscore</th>
+        </tr>
+        <tr
+          *ngFor="let player of playerList; let index = index"
+          class="leaderboardList"
+        >
+          <td class="leaderboardCell">
+            <div class="flex">{{ index + 1 }}</div>
+          </td>
+          <td class="leaderboardCell">
+            <div class="flex">{{ player.name }}</div>
+          </td>
+          <td class="leaderboardCell">
+            <div class="flex">{{ player.highscore }}</div>
+          </td>
+          <mat-divider></mat-divider>
+        </tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

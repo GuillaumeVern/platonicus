@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
+  //TODO: SET TO FALSE
   auth = new BehaviorSubject<boolean>(true);
   constructor(private router: Router) { }
 
@@ -21,7 +22,7 @@ export class AuthService {
       return true;
     }
     else {
-      this.logout;
+      this.logout();
       return false;
     }
   }

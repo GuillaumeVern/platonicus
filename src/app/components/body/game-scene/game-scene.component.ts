@@ -27,6 +27,7 @@ export class GameSceneComponent implements OnInit {
   delta: number = 0;
   groundMesh!: THREE.Mesh;
   morphic: any[] = [];
+  isMorphing: boolean = false;
 
   //Character variables
   charHedron: any;
@@ -148,7 +149,7 @@ export class GameSceneComponent implements OnInit {
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(() => this.animate());
     this.elapsedTime = this.clock.getElapsedTime();
-    this.controls.update();
+
 
     //console.log(this.icosahedronBody.position.x, this.icosahedronBody.position.y, this.icosahedronBody.position.z)
     //console.log(this.charHedron.position.x, this.charHedron.position.y, this.charHedron.position.z)
@@ -160,7 +161,7 @@ export class GameSceneComponent implements OnInit {
     //   this.icosahedronBody.quaternion.w
     // )
     this.camera.lookAt(this.charHedronMesh.position);
-
+    this.controls.update();
     this.renderer.render(this.scene, this.camera);
     this.stats !== undefined ? this.stats.update() : null;
   }
@@ -171,15 +172,8 @@ export class GameSceneComponent implements OnInit {
       this.speedVector.x += 1;
 
     }
-    if (event.key == 'l') {
-      console.log("charLevel = " + this.charLevel)
-
-    }
     if (event.key == 'u') {
       this.evolveGeometry(1);
-    }
-    if (event.key == 'p') {
-      this.playMorph();
     }
     if (event.key == 'm') {
       if (this.morphic[0].morphTargetInfluences[0] > 0)
@@ -195,8 +189,9 @@ export class GameSceneComponent implements OnInit {
   }
 
   evolveGeometry(phase: number) {
-    if (phase == 1) {
+    if (phase == 1 && !this.isMorphing) {
       console.log("phase 1");
+      this.isMorphing = true;
       this.removeGeometry(this.charHedron);
       this.morphic[this.charLevel].position.set(
         this.charHedron.position.x,
@@ -212,7 +207,7 @@ export class GameSceneComponent implements OnInit {
         new THREE.TetrahedronGeometry(10),
         new THREE.BoxGeometry(15.5, 15.5, 15.5),
         new THREE.OctahedronGeometry(13),
-        new THREE.DodecahedronGeometry(10),
+        new THREE.DodecahedronGeometry(12),
         new THREE.IcosahedronGeometry(10),
       ];
       if (this.charLevel < 4) { this.charLevel++; }
@@ -221,6 +216,7 @@ export class GameSceneComponent implements OnInit {
         this.material
       );
       this.scene.add(this.charHedron);
+      this.isMorphing = false;
     }
   }
 
@@ -360,6 +356,22 @@ export class GameSceneComponent implements OnInit {
       this.morphic[1].scale.set(11, 11, 11);
       this.morphic[1].morphTargetInfluences[0] = 1;
     });
+
+    loader.load('assets/shapes/octaToDode.glb', (gltf) => {
+      this.morphic[2] = gltf.scenes[0].children[0];
+      this.morphic[2].material = new THREE.MeshMatcapMaterial();
+      this.morphic[2].scale.set(11, 11, 11);
+      this.morphic[2].morphTargetInfluences[0] = 1;
+      this.morphic[2].rotation.set(-Math.PI / 2, 0, 0);
+    });
+
+    loader.load('assets/shapes/dodeToIco.glb', (gltf) => {
+      this.morphic[3] = gltf.scenes[0].children[0];
+      this.morphic[3].material = new THREE.MeshMatcapMaterial();
+      this.morphic[3].scale.set(13, 13, 13);
+      this.morphic[3].morphTargetInfluences[0] = 1;
+      this.morphic[3].rotation.set(-Math.PI / 2, 0, 0);
+    });
   }
 
   playMorph() {
@@ -376,9 +388,12 @@ export class GameSceneComponent implements OnInit {
 
       // Apply morphProgress
       this.morphic[this.charLevel].morphTargetInfluences[0] = 1 - morphProgress;
-      if (this.charLevel == 1) {
+      if (this.charLevel >= 1) {
         this.morphic[this.charLevel].morphTargetInfluences[1] = morphProgress;
       }
+      // if (this.charLevel == 2) {
+      //   this.morphic[this.charLevel].morphTargetInfluences[1] = 1 - morphProgress;
+      // }
     }, 10); // Run every 100 milliseconds
   }
 }
