@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class SubmitService {
-  api_host = 'http://localhost:8000';
+  // api_host = 'http://localhost:8000';
+  api_host = 'http://losvernos.com:4692';
   constructor(private http: HttpClient) { }
 
 
