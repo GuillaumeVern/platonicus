@@ -8,8 +8,8 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   //TODO: SET TO FALSE
   auth = new BehaviorSubject<boolean>(false);
-  // api_host = 'http://losvernos.com:4692';
-  api_host = 'http://localhost:8000';
+  api_host = 'http://losvernos.com:4692';
+  // api_host = 'http://localhost:8000';
   constructor(private router: Router, private http: HttpClient) {
 
   }
