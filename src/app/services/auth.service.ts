@@ -2,13 +2,13 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, Observable, of, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   //TODO: SET TO FALSE
   auth = new BehaviorSubject<boolean>(false);
+  api_host = 'http://losvernos.com:4692';
   constructor(private router: Router, private http: HttpClient) {
 
   }
@@ -24,7 +24,7 @@ export class AuthService {
       this.login();
     }
 
-    this.http.post('http://localhost:8000/auth/login', credentials)
+    this.http.post(`${this.api_host}/auth/login`, credentials)
       .pipe(
         catchError((error: any) => {
           return of(error);
@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   registerRequest(credentials: { username: string, password: string }) {
-    this.http.post('http://localhost:8000/auth/register', credentials)
+    this.http.post(`${this.api_host}/auth/register`, credentials)
       .pipe(
         catchError((error: any) => {
           return of(error);
