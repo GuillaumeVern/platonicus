@@ -38,7 +38,6 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this.authService.checkCreds(this.loginForm.value);
     this.authService.auth.subscribe((auth) => {
-      console.log(auth);
       if (!auth) {
         this.loading = false;
         this.loginForm.setErrors({ invalid: true });

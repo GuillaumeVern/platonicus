@@ -29,7 +29,7 @@ export class HeaderComponent implements OnInit{
       this.login_button_text = "Logout";
     }
 
-    if (this.login_button_text === "Logout") {
+    if (this.login_button_text === "Login/Register") {
       this.authService.logout();
     }
   }
