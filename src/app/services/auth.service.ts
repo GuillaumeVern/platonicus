@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   //TODO: SET TO FALSE
   auth = new BehaviorSubject<boolean>(false);
-  api_host = 'http://losvernos.com:4692';
+  api_host = 'http://localhost:8000';
   constructor(private router: Router, private http: HttpClient) {
 
   }
@@ -18,25 +18,42 @@ export class AuthService {
   }
 
   // returns http status code
-  checkCreds(credentials: { username: string, password: string }){
+  checkCreds(credentials: { username: string, password: string } | null = null) {
     //TODO : IMPLEMENT CHECK CREDS
-    if (credentials.username === 'admin' && credentials.password === 'admin') {
-      this.login();
-    }
-
-    this.http.post(`${this.api_host}/auth/login`, credentials)
-      .pipe(
-        catchError((error: any) => {
-          return of(error);
+    if (credentials === null) {
+      let token = localStorage.getItem('token');
+      if (token !== null) {
+        this.http.post(`${this.api_host}/auth/token`, { token: token })
+          .pipe(
+            catchError((error: any) => {
+              return of(error);
+            })
+          ).subscribe((res: any) => {
+            if (res.access_token === undefined) { // !ok
+              this.logout();
+            } else {
+              console.log(res)
+              localStorage.setItem('token', res.access_token);
+              this.login();
+              this.router.navigateByUrl('/home')
+            }
+          });
+      }
+    } else {
+      this.http.post(`${this.api_host}/auth/login`, credentials)
+        .pipe(
+          catchError((error: any) => {
+            return of(error);
+          })
+        ).subscribe((res: any) => {
+          if (res.access_token === undefined) { // !ok
+            this.logout();
+          } else {
+            localStorage.setItem('token', res.access_token);
+            this.login();
+          }
         })
-    ).subscribe((res: any) => {
-        if (res.access_token === undefined) { // !ok
-          this.logout();
-        } else {
-          this.login();
-        }
-      })
-
+    }
   }
 
   registerRequest(credentials: { username: string, password: string }) {
@@ -45,12 +62,10 @@ export class AuthService {
         catchError((error: any) => {
           return of(error);
         })
-    ).subscribe((res: any) => {
+      ).subscribe((res: any) => {
         console.log(res)
         if (res.status !== 201) { // created
           this.logout();
-        } else {
-          this.login();
         }
       });
   }
@@ -60,6 +75,7 @@ export class AuthService {
   }
 
   logout() {
+    localStorage.removeItem('token');
     this.auth.next(false);
   }
 }
