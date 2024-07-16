@@ -27,7 +27,6 @@ export class LoginComponent implements OnInit {
     private authService: AuthService) { }
   
   ngOnInit() {
-    this.authService.logout();
   }
 
   changeMode() {

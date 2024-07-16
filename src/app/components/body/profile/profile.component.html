@@ -1,13 +1,13 @@
 <div class="container">
-    <div class="profile-container">
+    <div class="profile-container" [formGroup]="userForm">
         <img src="https://www.shutterstock.com/image-vector/cute-cartoon-rubber-duck-vector-600nw-2276837591.jpg" alt="rubber-ducky" class="profile-img">
         <div class="details">
-            <div>Username</div>
-            <div>Pseudo</div>
-            <div>Email</div>
-            <div>Password</div>
-            <div>Highscore</div>
-            <div>Time Played</div>
+            <div>Username: {{username}}</div>
+            <div>Pseudo: {{pseudo}}</div>
+            <div>Email: {{email}}</div>
+            <div>Password: {{password}}</div>
+            <div>Highscore: {{highscore}}</div>
+            <div>Games Played: {{gamesplayed}}</div>
         </div>
         <div class="modify-details">
             
