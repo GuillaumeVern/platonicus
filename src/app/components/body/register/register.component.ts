@@ -32,13 +32,15 @@ export class RegisterComponent {
 
   /** Custom Validator checking for password match */
   checkPasswords: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
-    const pass = this.registerForm.get('password')?.value;
-    const confirmPass = this.registerForm.get('passwordConfirm')?.value
-    const matched = pass === confirmPass ? true : false;
+    const matched = this.password === this.passwordConfirm;
     matched ? this.registerForm.controls['passwordConfirm'].setErrors(null) :
       this.registerForm.controls['passwordConfirm'].setErrors({ notSame: true });
     return matched ? null : { notSame: true }
   }
+
+  get username() { return this.registerForm.get('username')?.value; }
+  get password() { return this.registerForm.get('password')?.value; }
+  get passwordConfirm() { return this.registerForm.get('passwordConfirm')?.value; }
 
   changeMode() {
     this.router.navigateByUrl("/login");
@@ -46,9 +48,15 @@ export class RegisterComponent {
 
   submit() {
     this.loading = true;
-    if (this.authService.registerRequest(this.registerForm.value)) {
-
-      this.loading = false;
-    }
+    this.authService.registerRequest({ username: this.username, password: this.password })
+    this.authService.auth.subscribe((auth) => {
+      if (auth) {
+        this.loading = false;
+        this.router.navigateByUrl('/profile');
+      } else {
+        this.loading = false;
+        this.registerForm.setErrors({ invalid: true });
+      }
+    });
   }
 }

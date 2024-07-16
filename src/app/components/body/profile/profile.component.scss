@@ -1,9 +1,23 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10em;
+}
+
 .profile-container {
     padding: 40px;
     font-size:larger;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .details {
+        margin-left: 2em;
 
+    }
 }
 
 .profile-img {
-    width: 15em;
+    width: 12em;
+    border-radius: 1000em;
 }

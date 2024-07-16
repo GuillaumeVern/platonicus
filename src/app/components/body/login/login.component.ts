@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup = new FormGroup({
     username: new FormControl('', [Validators.required, Validators.minLength(4)]),
     password: new FormControl('', [Validators.required, Validators.minLength(4)]),
@@ -25,15 +25,27 @@ export class LoginComponent {
 
   constructor(private router: Router,
     private authService: AuthService) { }
+  
+  ngOnInit() {
+    this.authService.logout();
+  }
 
   changeMode() {
     this.router.navigateByUrl('/register');
   }
 
-  async submit() {
+  submit() {
     this.loading = true;
-    if (await this.authService.checkCreds(this.loginForm.value) == false) {
-      this.loading = false;
-    }
+    this.authService.checkCreds(this.loginForm.value);
+    this.authService.auth.subscribe((auth) => {
+      console.log(auth);
+      if (!auth) {
+        this.loading = false;
+        this.loginForm.setErrors({ invalid: true });
+      } else {
+        this.loading = false;
+        this.router.navigateByUrl('/profile');
+      }
+    });
   }
 }
