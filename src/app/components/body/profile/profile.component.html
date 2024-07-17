@@ -1,16 +1,31 @@
-<div class="container">
-    <div class="profile-container" [formGroup]="userForm">
-        <img src="https://www.shutterstock.com/image-vector/cute-cartoon-rubber-duck-vector-600nw-2276837591.jpg" alt="rubber-ducky" class="profile-img">
-        <div class="details">
-            <div>Username: {{username}}</div>
-            <div>Pseudo: {{pseudo}}</div>
-            <div>Email: {{email}}</div>
-            <div>Password: {{password}}</div>
-            <div>Highscore: {{highscore}}</div>
-            <div>Games Played: {{gamesplayed}}</div>
+<div class="window">
+  <div #card class="card-wrap">
+    <div class="card" [ngStyle]="cardStyle()">
+      <div class="card-bg" [ngStyle]="cardBgTransform()">
+        <div class="container">
+          <img
+            class="profile-img"
+            src="https://www.shutterstock.com/image-vector/cute-cartoon-rubber-duck-vector-600nw-2276837591.jpg"
+          />
+          <div class="profile-container" [formGroup]="userForm">
+            <div class="details">
+              <div class="title">Username:</div>
+              <div class="content">{{ username }}</div>
+              <div class="title">Pseudo:</div>
+              <div class="content">{{ pseudo }}</div>
+              <div class="title">Email:</div>
+              <div class="content">{{ email }}</div>
+              <div class="title">Password:</div>
+              <div class="content">{{ password }}</div>
+              <div class="title">Highscore:</div>
+              <div class="content">{{ highscore }}</div>
+              <div class="title">Games Played:</div>
+              <div class="content">{{ gamesplayed }}</div>
+            </div>
+            <div class="modify-details"></div>
+          </div>
         </div>
-        <div class="modify-details">
-            
-        </div>
+      </div>
     </div>
+  </div>
 </div>

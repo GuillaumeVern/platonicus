@@ -1,7 +1,10 @@
-app-main-page {
-    
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
+.routerStyle {
+  justify-content: center;
+  height: 100%;
 }
 
+.pageCtn {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #dad8e2;
+}
