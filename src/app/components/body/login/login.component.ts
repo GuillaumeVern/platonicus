@@ -27,6 +27,7 @@ export class LoginComponent implements OnInit {
     private authService: AuthService) { }
   
   ngOnInit() {
+    this.authService.auth.next(false)
   }
 
   changeMode() {

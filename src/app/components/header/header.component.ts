@@ -5,11 +5,12 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SubmitService } from '../../services/submit.service';
 import { UserInfo } from '../../interfaces/user-info';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [MatButtonModule, RouterModule, FormsModule],
+  imports: [MatButtonModule, RouterModule, FormsModule, CommonModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })

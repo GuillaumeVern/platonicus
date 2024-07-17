@@ -1,23 +1,18 @@
-<div
-  style="
+<div style="
     height: 8vh;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: black;
     color: whitesmoke;
-  "
->
-  <h1
-    style="
+  ">
+  <h1 style="
       margin: 16px;
       font-size: xx-large;
       cursor: pointer;
       font-style: bold;
       font-family: Rubik;
-    "
-    routerLink="/home"
-  >
+    " routerLink="/home">
     PLATONICUS
   </h1>
   <nav style="display: flex; justify-content: center">
@@ -25,10 +20,12 @@
     <div routerLink="/profile">Profile</div>
     <div routerLink="/leaderboard">Leaderboard</div>
     <div routerLink="/settings">Clicker-Game</div>
-    <div *ngIf="authService.isAdmin" routerLink="/admin">ADMIN</div>
+    <ng-container *ngIf="isAdmin">
+      <div routerLink="/admin">ADMIN</div>
+    </ng-container>
   </nav>
   <div class="header-buttons-container">
-    <button mat-raised-button color="primary" routerLink="/login">
+    <button mat-raised-button color="primary" routerLink="/login" (click)="changeMode()">
       <span class="material-icons-outlined">person</span>{{ login_button_text }}
     </button>
   </div>
