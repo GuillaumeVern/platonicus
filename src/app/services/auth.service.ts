@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class AuthService {
-  //TODO: SET TO FALSE
   auth = new BehaviorSubject<boolean>(false);
   // api_host = 'http://losvernos.com:4692';
   api_host = 'http://localhost:8000';
@@ -20,7 +19,6 @@ export class AuthService {
 
   // returns http status code
   checkCreds(credentials: { username: string, password: string } | null = null) {
-    //TODO : IMPLEMENT CHECK CREDS
     if (credentials === null) {
       let token = localStorage.getItem('token');
       if (token !== null) {

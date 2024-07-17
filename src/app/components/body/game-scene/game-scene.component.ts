@@ -17,7 +17,7 @@ import { threeToCannon, ShapeType } from 'three-to-cannon';
 })
 export class GameSceneComponent implements OnInit {
   scene = new THREE.Scene();
-  material = new THREE.MeshMatcapMaterial();
+  material = new THREE.MeshNormalMaterial();
   renderer!: THREE.WebGLRenderer;
   clock = new THREE.Clock();
   hedrons: any[] = [];
@@ -43,7 +43,7 @@ export class GameSceneComponent implements OnInit {
 
   canvasSizes = {
     width: window.innerWidth,
-    height: window.innerHeight * 0.9,
+    height: window.innerHeight * 0.93,
   };
 
   camera = new THREE.PerspectiveCamera(
@@ -318,21 +318,21 @@ export class GameSceneComponent implements OnInit {
 
     loader.load('assets/shapes/tetratocube.glb', (gltf) => {
       this.morphic[0] = gltf.scenes[0].children[0];
-      this.morphic[0].material = new THREE.MeshMatcapMaterial();
+      this.morphic[0].material = new THREE.MeshNormalMaterial();
       this.morphic[0].scale.set(8, 8, 8);
       this.morphic[0].morphTargetInfluences[0] = 1;
     });
 
     loader.load('assets/shapes/octacube.glb', (gltf) => {
       this.morphic[1] = gltf.scenes[0].children[0];
-      this.morphic[1].material = new THREE.MeshMatcapMaterial();
+      this.morphic[1].material = new THREE.MeshNormalMaterial();
       this.morphic[1].scale.set(11, 11, 11);
       this.morphic[1].morphTargetInfluences[0] = 1;
     });
 
     loader.load('assets/shapes/octaToDode.glb', (gltf) => {
       this.morphic[2] = gltf.scenes[0].children[0];
-      this.morphic[2].material = new THREE.MeshMatcapMaterial();
+      this.morphic[2].material = new THREE.MeshNormalMaterial();
       this.morphic[2].scale.set(11, 11, 11);
       this.morphic[2].morphTargetInfluences[0] = 1;
       this.morphic[2].rotation.set(-Math.PI / 2, 0, 0);
@@ -340,7 +340,7 @@ export class GameSceneComponent implements OnInit {
 
     loader.load('assets/shapes/dodeToIco.glb', (gltf) => {
       this.morphic[3] = gltf.scenes[0].children[0];
-      this.morphic[3].material = new THREE.MeshMatcapMaterial();
+      this.morphic[3].material = new THREE.MeshNormalMaterial();
       this.morphic[3].scale.set(15, 15, 15);
       this.morphic[3].morphTargetInfluences[0] = 1;
       this.morphic[3].rotation.set(-Math.PI / 2, 0, 0);
