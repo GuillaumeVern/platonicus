@@ -155,7 +155,6 @@ export class GameSceneComponent implements OnInit {
     if (this.charControl[2]) { move[1] = 1; }
     else if (this.charControl[0]) { move[1] = -1; }
     else { move[1] = 0; }
-    console.log(move);
     this.sphereBody.applyImpulse(new CANNON.Vec3(move[0] * 5, 0, move[1] * 5));
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(() => this.animate());

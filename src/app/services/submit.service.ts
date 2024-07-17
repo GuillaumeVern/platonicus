@@ -12,8 +12,12 @@ export class SubmitService {
   constructor(private http: HttpClient) { }
 
 
-  getUserInfo(token: any): Observable<UserInfo> {
+  getUserInfo(token: string): Observable<UserInfo> {
     return this.http.get(`${this.api_host}/users/me`, { headers: { 'Authorization': `Bearer ${token}` } }) as Observable<UserInfo>;
+  }
+
+  getLeaderboard(token: string): Observable<UserInfo[]> {
+    return this.http.get(`${this.api_host}/users/leaderboard`, { headers: { 'Authorization': `Bearer ${token}` } }) as Observable<UserInfo[]>;
   }
 
 

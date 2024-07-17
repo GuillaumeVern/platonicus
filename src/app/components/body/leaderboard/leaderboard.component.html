@@ -1,8 +1,8 @@
 <div class="leaderboard">
   <mat-card>
     <mat-card-header>
-      <mat-card-title
-        >Leaderboard : {{ playerList.length }} current players</mat-card-title
+      <!-- <mat-card-title
+        >Leaderboard : {{ playerList.length }} current players</mat-card-title -->
       >
     </mat-card-header>
     <mat-card-content class="leaderboardCard">
@@ -20,7 +20,7 @@
             <div class="flex">{{ index + 1 }}</div>
           </td>
           <td class="leaderboardCell">
-            <div class="flex">{{ player.name }}</div>
+            <div class="flex">{{ player.pseudo }}</div>
           </td>
           <td class="leaderboardCell">
             <div class="flex">{{ player.highscore }}</div>

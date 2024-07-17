@@ -37,12 +37,15 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit() {
 
-    this.submitService.getUserInfo(localStorage.getItem('token')).subscribe((data) => {
-      this.userInfo = data;
-      if (this.userInfo !== undefined) {
-        this.userForm.setValue(this.userInfo);
-      }
-    });
+    let token = localStorage.getItem('token');
+    if (token !== null) {
+      this.submitService.getUserInfo(token).subscribe((data) => {
+        this.userInfo = data;
+        if (this.userInfo !== undefined) {
+          this.userForm.setValue(this.userInfo);
+        }
+      });
+    }
 
   }
 

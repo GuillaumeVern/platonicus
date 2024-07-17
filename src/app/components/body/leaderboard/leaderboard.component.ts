@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { SubmitService } from '../../../services/submit.service';
+import { UserInfo } from '../../../interfaces/user-info';
 
 @Component({
   selector: 'app-leaderboard',
@@ -11,110 +13,16 @@ import { MatDividerModule } from '@angular/material/divider';
   styleUrl: './leaderboard.component.scss'
 })
 export class LeaderboardComponent {
-  playerList = [
-    { name: 'Player 1', highscore: 100 },
-    { name: 'Player 2', highscore: 200 },
-    { name: 'Player 3', highscore: 150 },
-    { name: 'Player 4', highscore: 180 },
-    { name: 'Player 5', highscore: 120 },
-    { name: 'Player 6', highscore: 250 },
-    { name: 'Player 7', highscore: 170 },
-    { name: 'Player 8', highscore: 190 },
-    { name: 'Player 9', highscore: 140 },
-    { name: 'Player 10', highscore: 220 },
-    { name: 'Player 11', highscore: 230 },
-    { name: 'Player 12', highscore: 260 },
-    { name: 'Player 13', highscore: 170 },
-    { name: 'Player 14', highscore: 210 },
-    { name: 'Player 15', highscore: 290 },
-    { name: 'Player 16', highscore: 180 },
-    { name: 'Player 17', highscore: 240 },
-    { name: 'Player 18', highscore: 200 },
-    { name: 'Player 19', highscore: 220 },
-    { name: 'Player 20', highscore: 270 },
-    { name: 'Player 21', highscore: 190 },
-    { name: 'Player 22', highscore: 250 },
-    { name: 'Player 23', highscore: 230 },
-    { name: 'Player 24', highscore: 280 },
-    { name: 'Player 25', highscore: 210 },
-    { name: 'Player 26', highscore: 260 },
-    { name: 'Player 27', highscore: 170 },
-    { name: 'Player 28', highscore: 290 },
-    { name: 'Player 29', highscore: 180 },
-    { name: 'Player 30', highscore: 240 },
-    { name: 'Player 31', highscore: 200 },
-    { name: 'Player 32', highscore: 220 },
-    { name: 'Player 33', highscore: 270 },
-    { name: 'Player 34', highscore: 190 },
-    { name: 'Player 35', highscore: 250 },
-    { name: 'Player 36', highscore: 230 },
-    { name: 'Player 37', highscore: 280 },
-    { name: 'Player 38', highscore: 210 },
-    { name: 'Player 39', highscore: 260 },
-    { name: 'Player 40', highscore: 170 },
-    { name: 'Player 41', highscore: 290 },
-    { name: 'Player 42', highscore: 180 },
-    { name: 'Player 43', highscore: 240 },
-    { name: 'Player 44', highscore: 200 },
-    { name: 'Player 45', highscore: 220 },
-    { name: 'Player 46', highscore: 270 },
-    { name: 'Player 47', highscore: 190 },
-    { name: 'Player 48', highscore: 250 },
-    { name: 'Player 49', highscore: 230 },
-    { name: 'Player 50', highscore: 280 },
-    { name: 'Player 51', highscore: 210 },
-    { name: 'Player 52', highscore: 260 },
-    { name: 'Player 53', highscore: 170 },
-    { name: 'Player 54', highscore: 290 },
-    { name: 'Player 55', highscore: 180 },
-    { name: 'Player 56', highscore: 240 },
-    { name: 'Player 57', highscore: 200 },
-    { name: 'Player 58', highscore: 220 },
-    { name: 'Player 59', highscore: 270 },
-    { name: 'Player 60', highscore: 190 },
-    { name: 'Player 61', highscore: 250 },
-    { name: 'Player 62', highscore: 230 },
-    { name: 'Player 63', highscore: 280 },
-    { name: 'Player 64', highscore: 210 },
-    { name: 'Player 65', highscore: 260 },
-    { name: 'Player 66', highscore: 170 },
-    { name: 'Player 67', highscore: 290 },
-    { name: 'Player 68', highscore: 180 },
-    { name: 'Player 69', highscore: 240 },
-    { name: 'Player 70', highscore: 200 },
-    { name: 'Player 71', highscore: 220 },
-    { name: 'Player 72', highscore: 270 },
-    { name: 'Player 73', highscore: 190 },
-    { name: 'Player 74', highscore: 250 },
-    { name: 'Player 75', highscore: 230 },
-    { name: 'Player 76', highscore: 280 },
-    { name: 'Player 77', highscore: 210 },
-    { name: 'Player 78', highscore: 260 },
-    { name: 'Player 79', highscore: 170 },
-    { name: 'Player 80', highscore: 290 },
-    { name: 'Player 81', highscore: 180 },
-    { name: 'Player 82', highscore: 240 },
-    { name: 'Player 83', highscore: 200 },
-    { name: 'Player 84', highscore: 220 },
-    { name: 'Player 85', highscore: 270 },
-    { name: 'Player 86', highscore: 190 },
-    { name: 'Player 87', highscore: 250 },
-    { name: 'Player 88', highscore: 230 },
-    { name: 'Player 89', highscore: 280 },
-    { name: 'Player 90', highscore: 210 },
-    { name: 'Player 91', highscore: 260 },
-    { name: 'Player 92', highscore: 170 },
-    { name: 'Player 93', highscore: 290 },
-    { name: 'Player 94', highscore: 180 },
-    { name: 'Player 95', highscore: 240 },
-    { name: 'Player 96', highscore: 200 },
-    { name: 'Player 97', highscore: 220 },
-    { name: 'Player 98', highscore: 270 },
-    { name: 'Player 99', highscore: 190 },
-    { name: 'Player 100', highscore: 250 }
-  ];
-  constructor() {
-
-    this.playerList = this.playerList.sort((a, b) => b.highscore - a.highscore);
+  playerList: UserInfo[] = [];
+  constructor(private submitService: SubmitService) {
+    let token = localStorage.getItem('token');
+    if (token !== null) {
+      this.submitService.getLeaderboard(token).subscribe((data) => {
+        console.log(data)
+        this.playerList = data;
+      });
+    }
   }
+
+
 }
