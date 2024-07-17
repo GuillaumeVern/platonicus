@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SubmitService } from '../../services/submit.service';
+import { UserInfo } from '../../interfaces/user-info';
 
 @Component({
   selector: 'app-header',
@@ -11,12 +13,16 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent implements OnInit{
+export class HeaderComponent implements OnInit {
   login_button_text: string = "Login/Register";
+  userInfo: UserInfo | undefined;
+  isAdmin: boolean = false;
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, private submitService: SubmitService) { }
 
   ngOnInit() {
+
+
     this.changeMode();
     this.authService.auth.subscribe(() => {
       this.changeMode();

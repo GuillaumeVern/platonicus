@@ -7,25 +7,31 @@
 // pink-bluegrey.css
 // purple-green.css
 
-
-@import 'material-icons/iconfont/material-icons.css';
+@import "material-icons/iconfont/material-icons.css";
 
 app-root {
-    height: 100%;
-    width: 100%;
-    display: inline-block;
-    font-family: Rubik;
+  height: 100%;
+  width: 100%;
+  display: inline-block;
+  font-family: Rubik;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-}
+  margin: 0;
+  padding: 0;
 
+  overflow: hidden;
+}
 
 .material-icons-outlined {
-    vertical-align: bottom; 
-    margin-right: 3px;  
+  vertical-align: bottom;
+  margin-right: 3px;
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Rubik, Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Rubik, Roboto, "Helvetica Neue", sans-serif;
+}

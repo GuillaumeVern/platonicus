@@ -168,6 +168,16 @@ export class GameSceneComponent implements OnInit {
       this.sphereBody.quaternion.z,
       this.sphereBody.quaternion.w
     )
+
+    if (this.morphic[this.charLevel] !== undefined) {
+      this.morphic[this.charLevel].position.set(this.sphereBody.position.x, this.sphereBody.position.y, this.sphereBody.position.z);
+      this.morphic[this.charLevel].quaternion.set(
+        this.sphereBody.quaternion.x,
+        this.sphereBody.quaternion.y,
+        this.sphereBody.quaternion.z,
+        this.sphereBody.quaternion.w
+      );
+    }
     this.camera.lookAt(this.charHedronMesh.position);
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
@@ -187,6 +197,12 @@ export class GameSceneComponent implements OnInit {
     }
     if (event.key == 'a') {
       this.charControl[3] = true;
+    }
+    if (event.key == ' ') { //key == space
+      if (this.sphereBody.velocity.y < 0.01 && this.sphereBody.velocity.y > -0.01) {
+
+        this.sphereBody.applyImpulse(new CANNON.Vec3(0, 50, 0));
+      }
     }
 
     if (event.key == 'u') {
@@ -247,8 +263,8 @@ export class GameSceneComponent implements OnInit {
         geometryLine[this.charLevel],
         this.material
       );
-      this.scene.add(this.charHedron);
       this.isMorphing = false;
+      this.scene.add(this.charHedron);
     }
   }
 
@@ -288,7 +304,7 @@ export class GameSceneComponent implements OnInit {
     const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
 
     this.world = new CANNON.World()
-    this.world.gravity.set(0, -9.82, 0)
+    this.world.gravity.set(0, -15.82, 0)
     this.scene.add(this.charHedron)
     const sphereShape = new CANNON.Sphere(10)
     this.sphereBody.addShape(sphereShape)

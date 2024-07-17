@@ -25,6 +25,7 @@
     <div routerLink="/profile">Profile</div>
     <div routerLink="/leaderboard">Leaderboard</div>
     <div routerLink="/settings">Clicker-Game</div>
+    <div *ngIf="authService.isAdmin" routerLink="/admin">ADMIN</div>
   </nav>
   <div class="header-buttons-container">
     <button mat-raised-button color="primary" routerLink="/login">

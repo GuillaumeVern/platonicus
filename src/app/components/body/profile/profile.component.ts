@@ -6,11 +6,12 @@ import { jwtDecode } from 'jwt-decode';
 import { SubmitService } from '../../../services/submit.service';
 import { fromEvent } from 'rxjs';
 import { map, debounceTime, tap, merge, delay, mapTo, share, repeat, switchMap, takeUntil } from 'rxjs/operators';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, MatProgressSpinnerModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
@@ -22,6 +23,8 @@ export class ProfileComponent implements OnInit {
   backgroundImage!: string;
   mouseX = 0;
   mouseY = 0;
+  loading: boolean = true;
+
   get mousePX() {
     return this.mouseX / this.width;
   }
@@ -57,6 +60,7 @@ export class ProfileComponent implements OnInit {
         this.userInfo = data;
         if (this.userInfo !== undefined) {
           this.userForm.setValue(this.userInfo);
+          this.loading = false;
         }
       });
     }

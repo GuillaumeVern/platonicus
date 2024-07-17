@@ -7,6 +7,7 @@ import { authGuard } from './auth.guard';
 import { ProfileComponent } from './components/body/profile/profile.component';
 import { LeaderboardComponent } from './components/body/leaderboard/leaderboard.component';
 import { SettingsComponent } from './components/body/settings/settings.component';
+import { AdminComponent } from './components/body/admin/admin.component';
 
 export const routes: Routes = [
     { path: 'home', component: MainPageComponent, pathMatch: 'full', canActivate: [authGuard] },
@@ -15,6 +16,7 @@ export const routes: Routes = [
     { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
     { path: 'leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
     { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
-    { path: '', redirectTo: '/home', pathMatch: 'full'},
+    { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
+    { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: '**', component: ErrorComponent },
 ];
