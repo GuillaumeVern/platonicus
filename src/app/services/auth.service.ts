@@ -10,6 +10,7 @@ import { SubmitService } from './submit.service';
 export class AuthService {
   auth = new BehaviorSubject<boolean>(false);
   admin = new BehaviorSubject<boolean>(false);
+  adminChanged = new EventEmitter<boolean>();
   // api_host = 'http://losvernos.com:4692';
   api_host = 'http://localhost:8000';
   constructor(private router: Router, private http: HttpClient, private submitService: SubmitService) {
@@ -22,6 +23,7 @@ export class AuthService {
 
 
   get isAdmin(): boolean {
+    console.log(this.admin.getValue())
     return this.admin.getValue();
   }
 
@@ -30,8 +32,10 @@ export class AuthService {
   // returns http status code
   checkCreds(credentials: { username: string, password: string } | null = null) {
     if (credentials?.username === 'admin') {
+      console.log('admin')
       this.admin.next(true);
       this.auth.next(true);
+      this.adminChanged.emit(true);
       this.router.navigateByUrl('/admin');
     } else {
       
@@ -83,7 +87,6 @@ export class AuthService {
   }
 
   login() {
-
     this.auth.next(true);
   }
 
