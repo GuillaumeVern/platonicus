@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -12,14 +12,17 @@ import { UserInfo } from '../../../interfaces/user-info';
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss'
 })
-export class LeaderboardComponent {
+export class LeaderboardComponent implements OnInit{
   playerList: UserInfo[] = [];
   constructor(private submitService: SubmitService) {
+    
+  }
+
+  ngOnInit() {
     let token = localStorage.getItem('token');
     if (token !== null) {
       this.submitService.getLeaderboard(token).subscribe((data) => {
-        console.log(data)
-        this.playerList = data;
+        this.playerList = data as UserInfo[];
       });
     }
   }

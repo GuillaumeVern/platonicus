@@ -8,8 +8,8 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   //TODO: SET TO FALSE
   auth = new BehaviorSubject<boolean>(false);
-  api_host = 'http://losvernos.com:4692';
-  // api_host = 'http://localhost:8000';
+  // api_host = 'http://losvernos.com:4692';
+  api_host = 'http://localhost:8000';
   constructor(private router: Router, private http: HttpClient) {
 
   }
@@ -33,7 +33,6 @@ export class AuthService {
             if (res.access_token === undefined) { // !ok
               this.logout();
             } else {
-              console.log(res)
               localStorage.setItem('token', res.access_token);
               this.login();
               this.router.navigateByUrl('/home')
@@ -64,9 +63,7 @@ export class AuthService {
           return of(error);
         })
       ).subscribe((res: any) => {
-        if (res.status !== 201) { // created
-          this.logout();
-        }
+        this.logout();
       });
   }
 
@@ -77,5 +74,6 @@ export class AuthService {
   logout() {
     localStorage.removeItem('token');
     this.auth.next(false);
+    this.router.navigateByUrl('/login');
   }
 }
