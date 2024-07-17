@@ -14,15 +14,6 @@ export class AuthService {
   // api_host = 'http://localhost:8000';
   constructor(private router: Router, private http: HttpClient, private submitService: SubmitService) {
     this.checkCreds();
-
-  }
-
-  get isAuth(): boolean {
-    return this.auth.getValue();
-  }
-
-
-  get isAdmin(): boolean {
     let token = localStorage.getItem('token');
     let userInfo!: UserInfo;
     if (token !== null) {
@@ -33,8 +24,18 @@ export class AuthService {
         this.admin.next(true);
       }
     }
+  }
+
+  get isAuth(): boolean {
+    return this.auth.getValue();
+  }
+
+
+  get isAdmin(): boolean {
     return this.admin.getValue();
   }
+
+
 
   // returns http status code
   checkCreds(credentials: { username: string, password: string } | null = null) {
