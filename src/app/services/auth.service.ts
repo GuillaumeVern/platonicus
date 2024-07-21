@@ -11,8 +11,8 @@ export class AuthService {
   auth = new BehaviorSubject<boolean>(false);
   admin = new BehaviorSubject<boolean>(false);
   adminChanged = new EventEmitter<boolean>();
-  // api_host = 'http://losvernos.com:4692';
-  api_host = 'http://localhost:8000';
+  api_host = 'http://losvernos.com:4691';
+  // api_host = 'http://localhost:8000';
   constructor(private router: Router, private http: HttpClient, private submitService: SubmitService) {
     this.checkCreds();
   }
