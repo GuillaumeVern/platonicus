@@ -1,0 +1,37 @@
+/* You can add global styles to this file, and also import other style files */
+
+// @import "@angular/material/prebuilt-themes/indigo-pink.css";
+
+// deeppurple-amber.css
+// indigo-pink.css
+// pink-bluegrey.css
+// purple-green.css
+
+@import "material-icons/iconfont/material-icons.css";
+
+app-root {
+  height: 100%;
+  width: 100%;
+  display: inline-block;
+  font-family: Rubik;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+}
+
+.material-icons-outlined {
+  vertical-align: bottom;
+  margin-right: 3px;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Rubik, Roboto, "Helvetica Neue", sans-serif;
+}

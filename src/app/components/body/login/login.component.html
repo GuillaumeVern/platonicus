@@ -1,0 +1,55 @@
+<div class="loginCtn">
+  <mat-card class="loginCard">
+    <mat-card-header class="cardHeader">
+      <mat-card-title>Login</mat-card-title>
+      <button (click)="changeMode()" color="primary" mat-flat-button>
+        Register
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="submit()" class="loginForm">
+        <mat-form-field appearance="outline">
+          <input
+            type="text"
+            matInput
+            placeholder="Username"
+            formControlName="username"
+          />
+          @if (loginForm.get('username')?.invalid) {
+          <mat-error>Minimum Length is 4</mat-error>
+          }
+          <mat-error *ngIf="loginForm.hasError('minLength')"
+            >Minimum Length is 4 characters</mat-error
+          >
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <input
+            type="password"
+            matInput
+            placeholder="Password"
+            formControlName="password"
+          />
+          @if (loginForm.get('password')?.invalid) {
+          <mat-error>Minimum Length is 4</mat-error>
+          }
+          <mat-error *ngIf="loginForm.hasError('minLength')"
+            >Minimum Length is 4 characters</mat-error
+          >
+        </mat-form-field>
+
+        <div class="button">
+          <button
+            [disabled]="!loginForm.valid"
+            type="submit"
+            mat-flat-button
+            color="primary"
+            *ngIf="!loading"
+          >
+            Login
+          </button>
+          <mat-spinner diameter="50" *ngIf="loading"></mat-spinner>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,13 @@
+.header-buttons-container {
+  margin-right: 2em;
+  > button {
+    margin-inline: 4px;
+  }
+}
+
+nav {
+  > div {
+    margin-inline: 8px;
+    cursor: pointer;
+  }
+}
