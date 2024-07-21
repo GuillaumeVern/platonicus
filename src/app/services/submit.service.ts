@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class SubmitService {
   // api_host = 'http://localhost:8000';
-  api_host = 'http://losvernos.com:4691';
+  api_host = 'http://losvernos.com:4692';
   constructor(private http: HttpClient) { }
 
 
@@ -22,6 +22,10 @@ export class SubmitService {
 
   addScore(token: string, score: number): void {
     this.http.post(`${this.api_host}/scores/add`, { score: score }, { headers: { 'Authorization': `Bearer ${token}` } }).subscribe();
+  }
+
+  getUsers(token: string): Observable<any> {
+    return this.http.get(`${this.api_host}/users`, { headers: { 'Authorization': `Bearer ${token}` } }) as Observable<any>;
   }
 
 

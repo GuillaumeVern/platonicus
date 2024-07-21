@@ -1,1 +1,9 @@
-<p>admin works!</p>
+<div>
+    <ng-container *ngIf="this.users != null">
+        <ng-container *ngFor="let user of this.users">
+            {{ user }}
+
+        </ng-container>
+
+    </ng-container>
+</div>
